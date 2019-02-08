@@ -47,7 +47,7 @@ let parseActivityText activityText =
                    Details = Details details }
         | _ -> None
         
-let parse line =
+let parseLine line =
     match (parseHashDate line) with
     | Some parsedDate ->
         Some (ParsedDate parsedDate)
@@ -70,15 +70,18 @@ let isParsedDate xs =
     | Some (ParsedDate _) -> true
     | _ -> false
 
-[<EntryPoint>]
-let main argv =
-    readlines argv.[0]
+let parseFile filename = 
+    readlines filename
     |> Seq.filter (fun l -> not (System.String.IsNullOrEmpty(l)))
-    |> Seq.map parse
+    |> Seq.map parseLine
     |> Seq.toList
     |> partitionBy isParsedDate
     |> List.pairwise
     |> Map.ofList
+    
+[<EntryPoint>]
+let main argv =
+    parseFile argv.[0]
     |> printfn "%A"
     0 // return an integer exit code
 
