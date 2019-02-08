@@ -56,12 +56,29 @@ let parse line =
         | Some parsedActivity ->
             Some (ParsedActivityStart parsedActivity)
         | None -> None
+        
+let rec partitionBy f l =
+    match l with
+    | [] -> []
+    | x::xs ->
+        let first = f x
+        let run = x::List.takeWhile (fun y -> f y = first) xs
+        run::(partitionBy f (List.skip (List.length run) l))
+    
+let isParsedDate xs =
+    match xs with
+    | Some (ParsedDate _) -> true
+    | _ -> false
 
 [<EntryPoint>]
 let main argv =
     readlines argv.[0]
     |> Seq.filter (fun l -> not (System.String.IsNullOrEmpty(l)))
     |> Seq.map parse
-    |> Seq.iter (fun l -> printfn "%A" l)
+    |> Seq.toList
+    |> partitionBy isParsedDate
+    |> List.pairwise
+    |> Map.ofList
+    |> printfn "%A"
     0 // return an integer exit code
 

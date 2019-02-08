@@ -79,15 +79,21 @@ let rec partitionBy f l =
     | [] -> []
     | x::xs ->
         let first = f x
-        let run = List.takeWhile (fun y -> f y = first) l
+        let run = x::List.takeWhile (fun y -> f y = first) xs
         run::(partitionBy f (List.skip (List.length run) l))
     
-printfn "partitionBy id [] = %A" (partitionBy id [])
-printfn "partitionBy id [ 1 ] = %A" (partitionBy id [ 1 ])
-let isOdd x = (x % 2 = 0)
-printfn "partitionBy isOdd [] = %A" (partitionBy isOdd [])
-printfn "partitionBy isOdd [ 1 ] = %A" (partitionBy isOdd [ 1 ])
-printfn "partitionBy isOdd [ 1 2 ] = %A" (partitionBy isOdd [ 1; 2 ])
-let isPrime x =
-    List.contains x [2; 3; 5; 7; 11; 13; 17]
-printfn "partitionBy isPrime [2 .. 17] = %A" (partitionBy isPrime [2..17])
+//printfn "partitionBy id [] = %A" (partitionBy id [])
+//printfn "partitionBy id [ 1 ] = %A" (partitionBy id [ 1 ])
+//let isOdd x = (x % 2 = 0)
+//printfn "partitionBy isOdd [] = %A" (partitionBy isOdd [])
+//printfn "partitionBy isOdd [ 1 ] = %A" (partitionBy isOdd [ 1 ])
+//printfn "partitionBy isOdd [ 1 2 ] = %A" (partitionBy isOdd [ 1; 2 ])
+//let isPrime x =
+//    List.contains x [2; 3; 5; 7; 11; 13; 17]
+//printfn "partitionBy isPrime [2 .. 17] = %A" (partitionBy isPrime [2..17])
+
+let isDate xs =
+    match xs with
+    | ParsedDate _ -> true
+    | _ -> false
+printfn "partitioned parsed lines = %A" (partitionBy isDate parsedLines)
