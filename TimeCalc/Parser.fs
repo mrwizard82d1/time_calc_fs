@@ -80,14 +80,14 @@ module Parser =
            | Some (ParsedDate parsedDate) ->
                parsedDate
            | _ ->
-               failwith "Fail to parse date."
+               failwith (sprintf "Fail to parse date\n%A." candidate)
                
         let parsedActivityStart candidate =
            match candidate with
            | Some (ParsedActivityStart parsedActivityStart) ->
                parsedActivityStart
            | _ ->
-               failwith "Fail to parse activity start."
+               failwith (sprintf "Fail to parse activity start\n%A." candidate)
              
         let reducer soFar maybeParsedDate maybeParsedActivities =
             let parsedDate = parsedDate maybeParsedDate
@@ -102,7 +102,8 @@ module Parser =
         |> Seq.map parseLine
         |> Seq.toList
         |> partitionBy isParsedDate
-        |> List.pairwise
+        |> List.chunkBySize 2
+        |> List.map (fun lp -> (List.head lp, List.tail lp))
+        |> List.map (fun (d, ts) -> (List.head d, List.head ts))
         |> Map.ofList
-        
-
+        |> parse
