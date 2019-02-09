@@ -74,6 +74,28 @@ module Parser =
         | Some (ParsedDate _) -> true
         | _ -> false
         
+    let parse dateMap =
+        let parsedDate candidate =
+           match candidate with
+           | Some (ParsedDate parsedDate) ->
+               parsedDate
+           | _ ->
+               failwith "Fail to parse date."
+               
+        let parsedActivityStart candidate =
+           match candidate with
+           | Some (ParsedActivityStart parsedActivityStart) ->
+               parsedActivityStart
+           | _ ->
+               failwith "Fail to parse activity start."
+             
+        let reducer soFar maybeParsedDate maybeParsedActivities =
+            let parsedDate = parsedDate maybeParsedDate
+            let parsedActivities = List.map parsedActivityStart maybeParsedActivities
+            soFar |> Map.add parsedDate parsedActivities
+            
+        dateMap |> Map.fold reducer Map.empty
+
     let parseFile filename = 
         readlines filename
         |> Seq.filter (fun l -> not (System.String.IsNullOrEmpty(l)))
