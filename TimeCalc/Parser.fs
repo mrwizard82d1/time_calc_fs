@@ -1,20 +1,12 @@
 namespace TimeCalc
 
 open System.Text.RegularExpressions
+open Activity
 
 module Parser =
 
-    type DayOfMonth = DayOfMonth of int
-
-    type Month =
-        | Jan
-        | Feb
-        
     type Date = { DayOfMonth:DayOfMonth; Month:Month option }
 
-    type HourOfDay = HourOfDay of int
-
-    type MinuteOfHour = MinuteOfHour of int
     type Details = Details of string
 
     type ActivityStart = { Hour:HourOfDay; Minute:MinuteOfHour; Details:Details }
