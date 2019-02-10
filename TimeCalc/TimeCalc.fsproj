@@ -44,6 +44,7 @@
     <ItemGroup>
         <Compile Include="AssemblyInfo.fs" />
         <Compile Include="Activity.fs" />
+        <Compile Include="Presenter.fs" />
         <Compile Include="Parser.fs" />
         <Compile Include="ParserAdapter.fs" />
         <Compile Include="Program.fs" />
