@@ -24,7 +24,3 @@ module Activity =
     
     type Activity = { Start:DateTime; Duration:TimeSpan; Details:Details }
     
-    let monthInt monthName =
-        match monthName with
-        | Jan -> 1
-        | Feb -> 2

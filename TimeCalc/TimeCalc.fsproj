@@ -45,6 +45,7 @@
         <Compile Include="AssemblyInfo.fs" />
         <Compile Include="Activity.fs" />
         <Compile Include="Parser.fs" />
+        <Compile Include="ParserAdapter.fs" />
         <Compile Include="Program.fs" />
         <Content Include="packages.config" />
     </ItemGroup>
