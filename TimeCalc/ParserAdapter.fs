@@ -40,7 +40,7 @@ module ParserAdapter =
         |> List.zip (List.truncate (List.length endTimes) unfixedActivities)
         |> List.map (fun (activity, endTime) -> changeActivityEnd endTime activity)
 
-    let asnToActivities asn =
+    let toActivities asn =
         asn
         |> Map.toList
         |> List.map distributeDate
