@@ -5,14 +5,12 @@ open Activity
 
 module Parser =
 
-    type Date = { DayOfMonth:DayOfMonth; Month:Month option }
-
-    type Details = Details of string
+    type ActivityDate = { DayOfMonth:DayOfMonth; Month:MonthName option }
 
     type ActivityStart = { Hour:HourOfDay; Minute:MinuteOfHour; Details:Details }
 
     type ParsedLine =
-        | ParsedDate of Date
+        | ParsedActivityDate of ActivityDate
         | ParsedActivityStart of ActivityStart
 
     let readlines filePath = System.IO.File.ReadLines(filePath)
@@ -28,8 +26,8 @@ module Parser =
         | "Feb" -> Some Feb
         | _ -> None
         
-    let parseHashDate hashDateText = 
-        match hashDateText with
+    let parseHashActivityDate hashActivityDateText = 
+        match hashActivityDateText with
             | Regex @"# (\d{2})-([A-Za-z]{3})" [dayOfMonth; month] ->
                 Some { DayOfMonth = DayOfMonth (int dayOfMonth);
                        Month = textAsMonth month }
@@ -44,9 +42,9 @@ module Parser =
             | _ -> None
             
     let parseLine line =
-        match (parseHashDate line) with
-        | Some parsedDate ->
-            Some (ParsedDate parsedDate)
+        match (parseHashActivityDate line) with
+        | Some parsedActivityDate ->
+            Some (ParsedActivityDate parsedActivityDate)
         | None ->
             match (parseActivityText line) with
             | Some parsedActivity ->
@@ -61,16 +59,16 @@ module Parser =
             let run = x::List.takeWhile (fun y -> f y = first) xs
             run::(partitionBy f (List.skip (List.length run) l))
         
-    let isParsedDate xs =
+    let isParsedActivityDate xs =
         match xs with
-        | Some (ParsedDate _) -> true
+        | Some (ParsedActivityDate _) -> true
         | _ -> false
         
     let parse dateMap =
-        let parsedDate candidate =
+        let parsedActivityDate candidate =
            match candidate with
-           | Some (ParsedDate parsedDate) ->
-               parsedDate
+           | Some (ParsedActivityDate parsedActivityDate) ->
+               parsedActivityDate
            | _ ->
                failwith (sprintf "Fail to parse date\n%A." candidate)
                
@@ -81,10 +79,10 @@ module Parser =
            | _ ->
                failwith (sprintf "Fail to parse activity start\n%A." candidate)
              
-        let reducer soFar maybeParsedDate maybeParsedActivities =
-            let parsedDate = parsedDate maybeParsedDate
+        let reducer soFar maybeParsedActivityDate maybeParsedActivities =
+            let parsedActivityDate = parsedActivityDate maybeParsedActivityDate
             let parsedActivities = List.map parsedActivityStart maybeParsedActivities
-            soFar |> Map.add parsedDate parsedActivities
+            soFar |> Map.add parsedActivityDate parsedActivities
             
         dateMap |> Map.fold reducer Map.empty
 
@@ -93,7 +91,7 @@ module Parser =
         |> Seq.filter (fun l -> not (System.String.IsNullOrEmpty(l)))
         |> Seq.map parseLine
         |> Seq.toList
-        |> partitionBy isParsedDate
+        |> partitionBy isParsedActivityDate
         |> List.chunkBySize 2
         |> List.map (fun lp -> (List.head lp, List.tail lp))
         |> List.map (fun (d, ts) -> (List.head d, List.head ts))

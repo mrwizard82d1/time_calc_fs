@@ -1,79 +1,50 @@
+#load "Activity.fs"
 #load "Parser.fs"
 
+open System
+open TimeCalc.Activity
 open TimeCalc.Parser
 
-let validParsedDate =
-   Some (ParsedDate {DayOfMonth = DayOfMonth 4;
-                     Month = Some Feb;})
+let parsedActivities = [ { Hour = HourOfDay 1; Minute = MinuteOfHour 5; Details = Details "plan day"; }; 
+                         { Hour = HourOfDay 1; Minute = MinuteOfHour 25; Details = Details "learn FParsec"; };
+                         { Hour = HourOfDay 3; Minute = MinuteOfHour 30; Details = Details "out"; };
+                         { Hour = HourOfDay 9; Minute = MinuteOfHour 10; Details = Details "email"; }; ]
 
-let validParsedActivities =
-   [Some (ParsedActivityStart {Hour = HourOfDay 1;
-                                Minute = MinuteOfHour 5;
-                                Details = Details "plan day";});
-     Some (ParsedActivityStart {Hour = HourOfDay 1;
-                                Minute = MinuteOfHour 25;
-                                Details = Details "learn FParsec";});
-     Some (ParsedActivityStart {Hour = HourOfDay 3;
-                                Minute = MinuteOfHour 30;
-                                Details = Details "out";})]
-let validParsedActivity = List.head validParsedActivities
-   
-let parsedDate candidate =
-   match candidate with
-   | Some (ParsedDate parsedDate) ->
-       parsedDate
-   | _ ->
-       failwith "Fail to parse date."
+let activityDate = { DayOfMonth=DayOfMonth 4; Month=Some Feb; }
 
-printfn "parsedDate %A = %A" validParsedDate (parsedDate validParsedDate)
+let monthInt monthName =
+    match monthName with
+    | Some Jan -> 1
+    | Some Feb -> 2
+    | None ->
+        failwith (sprintf "Unrecognized month %A" monthName)
 
-try
-    printfn "parsedDate %A" validParsedActivity
-    parsedDate validParsedActivity |> ignore
-    printfn "threw *no* exception."
-with
-| _ ->
-    printfn "expectedly threw exception"
-
-let parsedActivityStart candidate =
-   match candidate with
-   | Some (ParsedActivityStart parsedActivityStart) ->
-       parsedActivityStart
-   | _ ->
-       failwith "Fail to parse activity start."
-       
-printfn "parsedActivityStart %A = %A" validParsedActivity (parsedActivityStart validParsedActivity)
-
-try
-    printfn "parsedActivityStart %A" validParsedDate
-    parsedActivityStart validParsedDate |> ignore
-    printfn "threw *no* exception."
-with
-| _ ->
-    printfn "expectedly threw exception"
+let makeActivityTimeStamp date parsedActivity =
+    let { DayOfMonth=(DayOfMonth dayOfMonth); Month=monthName } = date
+    let { Hour=(HourOfDay hour); Minute=(MinuteOfHour minute); Details=details } = parsedActivity
+    let timestamp = DateTime(System.DateTime.Now.Year, (monthInt monthName), dayOfMonth, hour, minute, 0)
+    { Start=timestamp; Duration=TimeSpan.Zero; Details=details }
     
-let parse dateMap =
-    let parsedDate candidate =
-       match candidate with
-       | Some (ParsedDate parsedDate) ->
-           parsedDate
-       | _ ->
-           failwith "Fail to parse date."
-           
-    let parsedActivityStart candidate =
-       match candidate with
-       | Some (ParsedActivityStart parsedActivityStart) ->
-           parsedActivityStart
-       | _ ->
-           failwith "Fail to parse activity start."
-         
-    let reducer soFar maybeParsedDate maybeParsedActivities =
-        let parsedDate = parsedDate maybeParsedDate
-        let parsedActivities = List.map parsedActivityStart maybeParsedActivities
-        soFar |> Map.add parsedDate parsedActivities
-        
-    dateMap |> Map.fold reducer Map.empty
+let distributeDate date parsedActivities =
+    let projector = makeActivityTimeStamp date
+    parsedActivities |> List.map projector
     
-Map.add validParsedDate validParsedActivities Map.empty
-|> parse
-|> printfn "parse valid map = %A" 
+let activityStart {Start=start} =
+    start
+
+let changeActivityEnd endTime activity =
+    let {Start=startTime} = activity
+    { activity with Duration=(endTime - startTime) }
+    
+let unfixedActivities = (distributeDate activityDate parsedActivities)
+let fixUpActivities unfixedActivities =
+    let shortEndTimes =
+        unfixedActivities
+        |> List.map (fun {Start=start} -> start)
+        |> List.skip 1
+    let endTimes = List.append shortEndTimes (List.take 1 (List.rev shortEndTimes))
+    endTimes
+    |> List.zip (List.truncate (List.length endTimes) unfixedActivities)
+    |> List.map (fun (activity, endTime) -> changeActivityEnd endTime activity)
+    
+printfn "%A" (fixUpActivities unfixedActivities)
