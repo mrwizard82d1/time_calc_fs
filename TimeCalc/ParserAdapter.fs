@@ -16,7 +16,13 @@ module ParserAdapter =
     let makeActivityTimeStamp date activity =
         let { DayOfMonth=(DayOfMonth dayOfMonth); Month=monthName } = date
         let { Hour=(HourOfDay hour); Minute=(MinuteOfHour minute); Details=details } = activity
-        let timestamp = DateTime(System.DateTime.Now.Year, (monthInt monthName), dayOfMonth, hour, minute, 0)
+        let timestamp =
+            match hour with
+            | 24 ->
+                let unadjustedDate = DateTime(System.DateTime.Now.Year, (monthInt monthName), dayOfMonth)
+                let adjustedDate = unadjustedDate + TimeSpan.FromDays(1.0)
+                DateTime(adjustedDate.Year, adjustedDate.Month, adjustedDate.Day, hour - 24,  minute, 0)
+            | _ -> DateTime(System.DateTime.Now.Year, (monthInt monthName), dayOfMonth, hour, minute, 0)
         { Start=timestamp; Duration=TimeSpan.Zero; Details=details }
         
     let distributeDate (date, activities) =
