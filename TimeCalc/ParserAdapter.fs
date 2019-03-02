@@ -10,6 +10,16 @@ module ParserAdapter =
         match monthName with
         | Some Jan -> 1
         | Some Feb -> 2
+        | Some Mar -> 3
+        | Some Apr -> 4
+        | Some May -> 5
+        | Some Jun -> 6
+        | Some Jul -> 7
+        | Some Aug -> 8
+        | Some Sep -> 9
+        | Some Oct -> 10
+        | Some Nov -> 11
+        | Some Dec -> 12
         | None ->
             failwith (sprintf "Unrecognized month %A" monthName)
 

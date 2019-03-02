@@ -24,6 +24,16 @@ module Parser =
         match monthText with
         | "Jan" -> Some Jan
         | "Feb" -> Some Feb
+        | "Mar" -> Some Mar
+        | "Apr" -> Some Apr
+        | "May" -> Some May
+        | "Jun" -> Some Jun
+        | "Jul" -> Some Jul
+        | "Aug" -> Some Aug
+        | "Sep" -> Some Sep
+        | "Oct" -> Some Oct
+        | "Nov" -> Some Nov
+        | "Dec" -> Some Jun
         | _ -> None
         
     let parseHashActivityDate hashActivityDateText = 
