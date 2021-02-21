@@ -6,7 +6,7 @@ open System
 module Presenter =
     
     let printSummary (Details details) (duration:TimeSpan) =
-        printfn "%12s  %.02f" details duration.TotalHours
+        printfn "%16s  %.02f" details duration.TotalHours
         
     let separateSummaries summaries =
         summaries
